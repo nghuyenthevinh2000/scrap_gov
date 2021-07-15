@@ -12,13 +12,12 @@ def write_to_file(json_str):
         f.write(json_str + "\n")
         f.close()
 
-def get_votes(cosmo_hub_id):
+def get_votes(cosmo_hub_id, start_id = 1):
     # loop through each id until fail to get an id n times
     N = 5
     n_retries = N
     wait_time = 10 # 10 sec
-    propose_id = 1
-
+    propose_id = start_id
     #push through option to push through failed-to-get proposal
     push_through = False
 
@@ -52,6 +51,13 @@ def get_votes(cosmo_hub_id):
             # crawl data
         bs = BeautifulSoup(res.text, features="html.parser")
         table = bs.find("table", {"class": "table table-sm votes-table"})
+
+            # check if data is missing
+        table_children = table.findChildren("tr")
+        if len(table_children) == 1:
+            print("Data is missing at proposal {} in cosmos-hub{} \n".format(propose_id-1, cosmo_hub_id))
+            continue
+
         for tr_item in table.findChildren("tr"):
             td_list = tr_item.findAll("td")
             user = dict()
